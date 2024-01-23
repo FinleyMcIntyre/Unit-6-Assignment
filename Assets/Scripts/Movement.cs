@@ -2,9 +2,7 @@ using System.Collections;
 
 
 using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Security.Cryptography;
-using System.Threading;
+
 using UnityEngine;
 
 public class ThirdPersonMovement : MonoBehaviour
@@ -13,12 +11,14 @@ public class ThirdPersonMovement : MonoBehaviour
     public Transform cam;
     public Animator anim;
 
+    private int coins;
+
     public float speed = 6;
     public float gravity = -9.81f;
     public float jumpHeight = 3;
     Vector3 velocity;
     bool isGrounded;
-   
+
 
     public Transform groundCheck;
     public float groundDistance = 0.4f;
@@ -27,9 +27,17 @@ public class ThirdPersonMovement : MonoBehaviour
     float turnSmoothVelocity;
     public float turnSmoothTime = 0.1f;
 
+    private void Start()
+    {
+        coins = 0;
+    }
     // Update is called once per frame
     void Update()
     {
+        if(Input.GetKeyDown(KeyCode.C))
+        {
+            Debug.Log("You have: " + coins + " coins.");
+        }
         //jump
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
 
@@ -41,7 +49,20 @@ public class ThirdPersonMovement : MonoBehaviour
         if (Input.GetButtonDown("Jump") && isGrounded)
         {
             velocity.y = Mathf.Sqrt(jumpHeight * -2 * gravity);
+
         }
+
+
+        if(Input.GetKeyDown("f"))
+        {
+            anim.SetTrigger("Dance");
+        }
+
+        if (Input.GetKeyDown("g"))
+        {
+            anim.SetTrigger("Warm Up");
+        }
+
         //gravity
         velocity.y += gravity * Time.deltaTime;
         controller.Move(velocity * Time.deltaTime);
@@ -58,7 +79,11 @@ public class ThirdPersonMovement : MonoBehaviour
 
             Vector3 moveDir = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
             controller.Move(moveDir.normalized * speed * Time.deltaTime);
+
+
+
         }
+
         if (horizontal != 0 || vertical != 0)
         {
             anim.SetBool("Walk", false);
@@ -68,5 +93,15 @@ public class ThirdPersonMovement : MonoBehaviour
             anim.SetBool("Walk", true);
         }
 
+
+
+    }
+    private void OnTriggerEnter(Collider other)
+    {
+       if(other.gameObject.tag == "Diamond")
+        {
+            coins++;
+            other.gameObject.SetActive(false);
+        }
     }
 }
